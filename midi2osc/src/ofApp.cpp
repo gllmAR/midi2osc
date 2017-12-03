@@ -1,84 +1,19 @@
 #include "ofApp.h"
 
 //--------------------------------------------------------------
-#include "ofApp.h"
-
-//--------------------------------------------------------------
 void ofApp::setup() {
-    ofSetVerticalSync(true);
-    ofBackground(255, 255, 255);
-    ofSetLogLevel(OF_LOG_VERBOSE);
+
+    if(debug){ofSetLogLevel(OF_LOG_VERBOSE);}
     
-    // print input ports to console
-    midiIn.listPorts(); // via instance
-    //ofxMidiIn::listPorts(); // via static as well
-    
-    // open port by number (you may need to change this)
+    midiIn.listPorts();
     midiIn.openPort("MIDI Mix");
-    //midiIn.openPort("IAC Pure Data In");	// by name
-    //midiIn.openVirtualPort("ofxMidiIn Input"); // open a virtual port
-    
-    // don't ignore sysex, timing, & active sense messages,
-    // these are ignored by default
     midiIn.ignoreTypes(false, false, false);
-    
-    // add ofApp as a listener
     midiIn.addListener(this);
-    
-    // print received messages to the console
     midiIn.setVerbose(true);
-    
+    ofSetFrameRate(1);
     osc_sender.setup(HOST, PORT);
 }
 
-//--------------------------------------------------------------
-void ofApp::update()
-{
-
-}
-
-//--------------------------------------------------------------
-void ofApp::draw() {
-    ofSetColor(0);
-    
-    // draw the last recieved message contents to the screen
-    text << "Received: " << ofxMidiMessage::getStatusString(midiMessage.status);
-    ofDrawBitmapString(text.str(), 20, 20);
-    text.str(""); // clear
-    
-    text << "channel: " << midiMessage.channel;
-    ofDrawBitmapString(text.str(), 20, 34);
-    text.str(""); // clear
-    
-    text << "pitch: " << midiMessage.pitch;
-    ofDrawBitmapString(text.str(), 20, 48);
-    text.str(""); // clear
-    ofDrawRectangle(20, 58, ofMap(midiMessage.pitch, 0, 127, 0, ofGetWidth()-40), 20);
-    
-    text << "velocity: " << midiMessage.velocity;
-    ofDrawBitmapString(text.str(), 20, 96);
-    text.str(""); // clear
-    ofDrawRectangle(20, 105, ofMap(midiMessage.velocity, 0, 127, 0, ofGetWidth()-40), 20);
-    
-    text << "control: " << midiMessage.control;
-    ofDrawBitmapString(text.str(), 20, 144);
-    text.str(""); // clear
-    ofDrawRectangle(20, 154, ofMap(midiMessage.control, 0, 127, 0, ofGetWidth()-40), 20);
-    
-    text << "value: " << midiMessage.value;
-    ofDrawBitmapString(text.str(), 20, 192);
-    text.str(""); // clear
-    if(midiMessage.status == MIDI_PITCH_BEND) {
-        ofDrawRectangle(20, 202, ofMap(midiMessage.value, 0, MIDI_MAX_BEND, 0, ofGetWidth()-40), 20);
-    }
-    else {
-        ofDrawRectangle(20, 202, ofMap(midiMessage.value, 0, 127, 0, ofGetWidth()-40), 20);
-    }
-    
-    text << "delta: " << midiMessage.deltatime;
-    ofDrawBitmapString(text.str(), 20, 240);
-    text.str(""); // clear
-}
 
 //--------------------------------------------------------------
 void ofApp::exit() {
@@ -93,7 +28,6 @@ void ofApp::newMidiMessage(ofxMidiMessage& msg) {
     ofxOscMessage m;
     // make a copy of the latest message
     midiMessage = msg;
-    bool send_flag=1;
     //manage Ctl
     switch (msg.control)
     {
@@ -113,6 +47,7 @@ void ofApp::newMidiMessage(ofxMidiMessage& msg) {
             m.setAddress("/oscillo/audio_io/input/volume");
             m.addFloatArg(ofMap(msg.value,0,127,0,1.2));
             break;
+        
         case 20:
             m.setAddress("/oscillo/graphe/input/saturation");
             m.addFloatArg(ofMap(msg.value,0,127,0,255));
@@ -129,6 +64,7 @@ void ofApp::newMidiMessage(ofxMidiMessage& msg) {
             m.setAddress("/oscillo/graphe/input/shape_scale");
             m.addFloatArg(ofMap(msg.value,0,127,0,0.25));
             break;
+        
         case 24:
             m.setAddress("/oscillo/graphe/player/buffer_history");
             m.addIntArg(ofMap(msg.value,0,127,513,4096));
@@ -145,6 +81,7 @@ void ofApp::newMidiMessage(ofxMidiMessage& msg) {
             m.setAddress("/oscillo/audio_io/player/volume");
             m.addFloatArg(ofMap(msg.value,0,127,0,1.2));
             break;
+        
         case 28:
             m.setAddress("/oscillo/graphe/player/saturation");
             m.addFloatArg(ofMap(msg.value,0,127,0,255));
@@ -161,6 +98,42 @@ void ofApp::newMidiMessage(ofxMidiMessage& msg) {
             m.setAddress("/oscillo/graphe/player/shape_scale");
             m.addFloatArg(ofMap(msg.value,0,127,0,0.25));
             break;
+        
+        case 46:
+            m.setAddress("/oscillo/audio_io/player/file_index");
+            m.addIntArg(ofMap(msg.value,0,127,0,9));
+            break;
+        case 47:
+            m.setAddress("/oscillo/audio_io/player/position");
+            m.addFloatArg(ofMap(msg.value,0,127,0,1));
+            break;
+        case 48:
+            m.setAddress("/oscillo/interact/speed_trim");
+            m.addFloatArg(ofMap(msg.value,0,127,0,2));
+            break;
+        case 49:
+            m.setAddress("/oscillo/audio_io/player/speed");
+            m.addFloatArg(ofMap(msg.value,0,127,-2,2));
+            break;
+
+        case 50:
+            m.setAddress("/oscillo/feedback/x");
+            m.addFloatArg(ofMap(msg.value,0,127,0.96,1.04));
+            break;
+        case 51:
+            m.setAddress("/oscillo/feedback/y");
+            m.addFloatArg(ofMap(msg.value,0,127,0.96,1.04));
+            break;
+        case 52:
+            m.setAddress("/oscillo/feedback/scale");
+            m.addFloatArg(ofMap(msg.value,0,127,0.5,1.5));
+            break;
+        case 53:
+            m.setAddress("/oscillo/feedback/ammount");
+            m.addFloatArg(ofMap(msg.value,0,127,0.80,1));
+            break;
+            
+            
         case 54:
             m.setAddress("/oscillo/graphe/output/buffer_history");
             m.addIntArg(ofMap(msg.value,0,127,513,4096));
@@ -177,6 +150,8 @@ void ofApp::newMidiMessage(ofxMidiMessage& msg) {
             m.setAddress("/oscillo/audio_io/output/volume");
             m.addFloatArg(ofMap(msg.value,0,127,0,1.2));
             break;
+        
+        
         case 58:
             m.setAddress("/oscillo/graphe/output/saturation");
             m.addFloatArg(ofMap(msg.value,0,127,0,255));
@@ -194,43 +169,65 @@ void ofApp::newMidiMessage(ofxMidiMessage& msg) {
             m.addFloatArg(ofMap(msg.value,0,127,0,0.25));
             break;
         default:
-            cout<<"not mapped"<<endl;
-            send_flag=0;
+            if(debug){cout<<"cc not mapped"<<endl;}
             break;
 
     }
-    // potentiellement buggy car double envoie
-    if(send_flag){osc_sender.sendMessage(m);}
-
-    cout<<"stuuuuu "<<msg.control<< " "<< msg.value<<endl;
-}
-
-//--------------------------------------------------------------
-void ofApp::keyPressed(int key) {
     
-    switch(key) {
-        case 'l':
-            midiIn.listPorts();
+
+    cout<<msg.bytes[0]<<" "<<int(msg.pitch)<<endl;
+    
+    if (int(msg.bytes[0])==144) //parse note on (144)
+    {
+        switch (msg.pitch)
+    {
+        case 1:
+            m.setAddress("/oscillo/audio_io/input/mute");
+            audio_io_input_mute=!audio_io_input_mute;
+            m.addBoolArg(audio_io_input_mute);
             break;
+        case 4:
+            m.setAddress("/oscillo/graphe/input/active");
+            graphe_input_active=!graphe_input_active;
+            m.addBoolArg(graphe_input_active);
+            break;
+        case 7:
+            m.setAddress("/oscillo/audio_io/player/enable");
+            audio_io_player_enable=!audio_io_player_enable;
+            m.addBoolArg(audio_io_player_enable);
+            break;
+        case 10:
+            m.setAddress("/oscillo/graphe/player/active");
+            graphe_player_active=!graphe_player_active;
+            m.addBoolArg(graphe_player_active);
+            break;
+        case 13:
+            m.setAddress("/oscillo/interact/interact_enable");
+            interact_interact_enable=!interact_interact_enable;
+            m.addBoolArg(interact_interact_enable);
+            break;
+        case 16:
+            m.setAddress("/oscillo/feedback/enable");
+            feedback_enable=!feedback_enable;
+            m.addBoolArg(feedback_enable);
+            break;
+            
+
+
+            
+        case 27:
+            m.setAddress("/oscillo/audio_io/device/reset_audio");
+            m.addBoolArg(1);
+            break;
+            
+        
+        default:
+            if(debug){cout<<"pitch not mapped"<<endl;}
+            break;
+            
     }
+    }
+    osc_sender.sendMessage(m);
+
 }
 
-//--------------------------------------------------------------
-void ofApp::keyReleased(int key) {
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseMoved(int x, int y) {
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseDragged(int x, int y, int button) {
-}
-
-//--------------------------------------------------------------
-void ofApp::mousePressed(int x, int y, int button) {
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseReleased() {
-}

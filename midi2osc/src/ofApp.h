@@ -13,25 +13,23 @@ class ofApp : public ofBaseApp, public ofxMidiListener {
 public:
     
     void setup();
-    void update();
-    void draw();
+
     void exit();
     
-    void keyPressed(int key);
-    void keyReleased(int key);
-    
-    void mouseMoved(int x, int y );
-    void mouseDragged(int x, int y, int button);
-    void mousePressed(int x, int y, int button);
-    void mouseReleased();
+    bool debug = 1;
     
     void newMidiMessage(ofxMidiMessage& eventArgs);
     
-    stringstream text;
     
     ofxMidiIn midiIn;
     ofxMidiMessage midiMessage;
     
     ofxOscSender osc_sender;
-
+    
+    bool audio_io_input_mute = 0;
+    bool graphe_input_active = 0;
+    bool audio_io_player_enable=0;
+    bool graphe_player_active=0;
+    bool interact_interact_enable=0;
+    bool feedback_enable=0;
 };

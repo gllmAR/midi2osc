@@ -1,13 +1,16 @@
 #include "ofMain.h"
 #include "ofApp.h"
+#include "ofAppNoWindow.h"
 
 //========================================================================
-int main( ){
-	ofSetupOpenGL(640,360,OF_WINDOW);			// <-------- setup the GL context
-
-	// this kicks off the running of my app
-	// can be OF_WINDOW or OF_FULLSCREEN
-	// pass in width and height too:
-	ofRunApp(new ofApp());
-
+int main( )
+{
+    // if you want to see the window
+    // comment these two lines
+    ofAppNoWindow window;
+    ofSetupOpenGL(&window, 640, 360, OF_WINDOW);
+    
+    // and uncomment this line
+    // ofSetupOpenGL(300, 300, OF_WINDOW);
+    ofRunApp(new ofApp());
 }
