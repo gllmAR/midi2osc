@@ -215,6 +215,12 @@ void ofApp::newMidiMessage(ofxMidiMessage& msg) {
                 feedback_enable=!feedback_enable;
                 m.addBoolArg(feedback_enable);
                 break;
+            case 25:
+                ofSystem("sudo shutdown -h -f now");
+                break;
+            case 26:
+                ofSystem("sudo systemctl restart oscillo");
+                break;
             case 27:
                 m.setAddress("/oscillo/audio_io/device/reset_audio");
                 m.addBoolArg(1);
