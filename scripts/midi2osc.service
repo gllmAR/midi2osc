@@ -1,0 +1,9 @@
+[Unit]
+Description=midi2osc
+After=syslog.target
+[Service]
+ExecStart=/home/artificiel/src/midi2osc/midi2osc/bin/midi2osc
+Restart=on-failure
+[Install]
+WantedBy=multi-user.target
+

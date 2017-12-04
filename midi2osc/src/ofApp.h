@@ -16,7 +16,7 @@ public:
 
     void exit();
     
-    bool debug = 1;
+    bool debug = 0;
     
     void newMidiMessage(ofxMidiMessage& eventArgs);
     
