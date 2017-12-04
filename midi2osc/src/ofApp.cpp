@@ -13,8 +13,6 @@ void ofApp::setup() {
     ofSetFrameRate(1);
     osc_sender.setup(HOST, PORT);
 }
-
-
 //--------------------------------------------------------------
 void ofApp::exit() {
     
@@ -22,7 +20,6 @@ void ofApp::exit() {
     midiIn.closePort();
     midiIn.removeListener(this);
 }
-
 //--------------------------------------------------------------
 void ofApp::newMidiMessage(ofxMidiMessage& msg) {
     ofxOscMessage m;
@@ -173,8 +170,7 @@ void ofApp::newMidiMessage(ofxMidiMessage& msg) {
             break;
 
     }
-    
-
+    //manage note in
     cout<<msg.bytes[0]<<" "<<int(msg.pitch)<<endl;
     
     if (int(msg.bytes[0])==144) //parse note on (144)
@@ -202,32 +198,26 @@ void ofApp::newMidiMessage(ofxMidiMessage& msg) {
             m.addBoolArg(graphe_player_active);
             break;
         case 13:
-            m.setAddress("/oscillo/interact/interact_enable");
-            interact_interact_enable=!interact_interact_enable;
-            m.addBoolArg(interact_interact_enable);
+            m.setAddress("/oscillo/interact/speed/interact_enable");
+            interact_speed_enable=!interact_speed_enable;
+            m.addBoolArg(interact_speed_enable);
             break;
         case 16:
             m.setAddress("/oscillo/feedback/enable");
             feedback_enable=!feedback_enable;
             m.addBoolArg(feedback_enable);
             break;
-            
-
-
-            
         case 27:
             m.setAddress("/oscillo/audio_io/device/reset_audio");
             m.addBoolArg(1);
             break;
-            
         
         default:
             if(debug){cout<<"pitch not mapped"<<endl;}
             break;
-            
+
     }
     }
     osc_sender.sendMessage(m);
-
 }
 

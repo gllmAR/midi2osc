@@ -30,6 +30,6 @@ public:
     bool graphe_input_active = 0;
     bool audio_io_player_enable=0;
     bool graphe_player_active=0;
-    bool interact_interact_enable=0;
+    bool interact_speed_enable=0;
     bool feedback_enable=0;
 };
