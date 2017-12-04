@@ -6,10 +6,14 @@ void ofApp::setup() {
     if(debug){ofSetLogLevel(OF_LOG_VERBOSE);}
     
     midiIn.listPorts();
-    midiIn.openPort("MIDI Mix");
+#ifdef TARGET_LINUX_ARM
+    midiIn.openPort("MIDI Mix 20:0");
+#else
+   midiIn.openPort("MIDI Mix");   	
+#endif
     midiIn.ignoreTypes(false, false, false);
     midiIn.addListener(this);
-    midiIn.setVerbose(true);
+   if(debug){ midiIn.setVerbose(true);}
     ofSetFrameRate(1);
     osc_sender.setup(HOST, PORT);
 }
@@ -175,7 +179,6 @@ void ofApp::newMidiMessage(ofxMidiMessage& msg) {
     }
     
 
-    cout<<msg.bytes[0]<<" "<<int(msg.pitch)<<endl;
     
     if (int(msg.bytes[0])==144) //parse note on (144)
     {
